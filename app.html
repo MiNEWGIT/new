@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test MetaMask Connection</title>
+    <script src="https://unpkg.com/ethers@5.7.0/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+    <h1>MetaMask Test</h1>
+    <button id="connectButton">Connect Wallet</button>
+    <p id="walletAddress"></p>
+    <p id="walletBalance"></p>
+    <p id="tokenBalance"></p>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if ethers is available
+            if (typeof window.ethers !== 'undefined') {
+                const ethers = window.ethers;
+
+                // Token contract address and ABI
+                const tokenAddress = '0x9031FFe14632e5954AB4aC45049C1C0636fD3681';
+                const tokenABI = [
+                    "function balanceOf(address owner) view returns (uint256)"
+                ];
+
+                document.getElementById('connectButton').addEventListener('click', async () => {
+                    if (window.ethereum) {
+                        try {
+                            const provider = new ethers.providers.Web3Provider(window.ethereum);
+                            await provider.send("eth_requestAccounts", []);
+                            const signer = provider.getSigner();
+                            const account = await signer.getAddress();
+                            document.getElementById('walletAddress').innerText = `Connected Wallet: ${account}`;
+                            
+                            // Get BNB ETH balance
+                            const balance = await provider.getBalance(account);
+                            const balanceInEther = ethers.utils.formatEther(balance);
+                            document.getElementById('walletBalance').innerText = `ETH Balance: ${balanceInEther} BNB ETH`;
+
+                            
+
+                        } catch (error) {
+                            console.error("MetaMask Error:", error);
+                            document.getElementById('walletAddress').innerText = 'Error connecting to MetaMask.';
+                        }
+                    } else {
+                        document.getElementById('walletAddress').innerText = 'MetaMask is not installed!';
+                    }
+                });
+            } else {
+                console.error("Ethers library is not loaded.");
+                document.getElementById('walletAddress').innerText = 'Ethers library is not loaded.';
+            }
+        });
+    </script>
+</body>
+</html>
